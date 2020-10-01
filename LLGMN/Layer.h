@@ -23,12 +23,19 @@ private:
     vector<vector<double>> output2;
     vector<double> y;
     // error value
-    vector<double> error1;
-    vector<double> error2;
+    vector<double> error;
     // weight
     vector<vector<vector<double>>> weight;
     //‘æ2‘w“r’†®—p
     double sum;
+    //•]‰¿ŠÖ”
+    vector<double> J;
+    //”÷•ª
+    vector<vector<vector<double>>> dj_dw;
+    vector<vector<double>> dj_dw_sum;
+    //ŠwK—¦
+    double eta;
+
 
 public:
     vector<double> forward(vector<double> input_data) {//input_data:“ü—ÍƒxƒNƒgƒ‹?
@@ -72,10 +79,43 @@ public:
     }
 
     void learn_online(vector<vector<double>>& input_data, vector<vector<double>>& input_label) {
+        vector<double> Y = forward(input_data);
+        for (int times = 0; times < 10001; ++times) {
+   
+            for (int k = 0; k <= K; k++) {
+                for (int m = 0; m <= M; m++) {
+                    for (int h = 0; h <= H; h++) {
+                        error[k] = Y[k] - input_label[k];
+                        dj_dw[h][k][m] = error[k] * (output2[k][m] / Y[k]) * X[h];
+                        weight[h][k][m] -= eta * dj_dw[h][k][m];
+                    }
+                }
+            }
+
+        }
+
 
     }
 
     void learn_patch(vector<vector<double>>& input_data, vector<vector<double>>& input_label) {
+        vector<double> Y = forward(input_data);
+        for (int times = 0; times < 10001; ++times) {
+
+            for (int k = 0; k <= K; k++) {
+                for (int m = 0; m <= M; m++) {
+                    for (int h = 0; h <= H; h++) {
+                        error[k] = Y[k] - input_label[k];
+                        dj_dw[h][k][m] = error[k] * (output2[k][m] / Y[k]) * X[h];
+                        dj_dw_sum[k][m] += dj_dw[h][k][m];
+                    }
+                    for (int h = 0; h <= H; h++) {
+                        weight[h][k][m] -= eta * dj_dw_sum[k][m] / H;
+                    }
+                }
+            }
+
+        }
+
 
     }
 
