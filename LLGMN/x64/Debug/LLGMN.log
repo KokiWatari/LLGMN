@@ -1,9 +1,2 @@
 ﻿  Source.cpp
-C:\Users\kouki\OneDrive - 横浜国立大学\GitHub\LLGMN\LLGMN\Layer.h(79,1): error C2664: 'std::vector<double,std::allocator<double>> Layer::forward(std::vector<double,std::allocator<double>>)': 引数 1 を 'std::vector<std::vector<double,std::allocator<double>>,std::allocator<std::vector<double,std::allocator<double>>>>' から 'std::vector<double,std::allocator<double>>' へ変換できません。
-C:\Users\kouki\OneDrive - 横浜国立大学\GitHub\LLGMN\LLGMN\Layer.h(79,36): message : この変換を実行可能なユーザー定義変換演算子がないか、または演算子を呼び出せません。
-C:\Users\kouki\OneDrive - 横浜国立大学\GitHub\LLGMN\LLGMN\Layer.h(38,20): message : 'Layer::forward' の宣言を確認してください
-C:\Users\kouki\OneDrive - 横浜国立大学\GitHub\LLGMN\LLGMN\Layer.h(83,44): error C2677: 二項演算子 '-': 型 '_Ty' を扱うグローバルな演算子が見つかりません (または変換できません) (新しい動作; ヘルプを参照)。
-          with
-          [
-              _Ty=std::vector<double,std::allocator<double>>
-          ]
+  LLGMN.vcxproj -> C:\Users\ShimaLab\OneDrive - 横浜国立大学\GitHub\LLGMN\x64\Debug\LLGMN.exe
