@@ -4,6 +4,7 @@
 #include<sstream>
 #include<vector>
 #include"Layer.h"
+#define huge 100
 using namespace std;
 vector<vector<double>> get_vector_from_file(string filename);
 
@@ -13,15 +14,15 @@ Layer::Layer(int D, int K, int M, double eta)
 	,M(M)
 	,eta(eta)
 {
-	x = vector<double>(H);
-	input1 = vector<double>(H);
+	x = vector<double>(1,1);
+	input1 = vector<double>(huge);
 	input2 = vector<vector<double>>(K, vector<double>(M, 0));
 	input3 = vector<double>(K);
-	output1 = vector<double>(H);
+	output1 = vector<double>(huge);
 	output2 = vector<vector<double>>(K, vector<double>(M, 0));
 	y = vector<double>(K);
-	weight = vector<vector<vector<double>>>(H, vector<vector<double>>(K, vector<double>(M, 0)));
-	dj_dw = vector<vector<vector<double>>>(H, vector<vector<double>>(K, vector<double>(M, 0)));
+	weight = vector<vector<vector<double>>>(huge, vector<vector<double>>(K, vector<double>(M, 0)));
+	dj_dw = vector<vector<vector<double>>>(huge, vector<vector<double>>(K, vector<double>(M, 0)));
 	init_weight();
 }
 
@@ -42,7 +43,7 @@ int main() {
 	vector<vector<double>> test_input_data = get_vector_from_file("dis_sig.csv");
 	vector<vector<double>> test_input_label = get_vector_from_file("dis_T_sig.csv");
 	//Layerクラス　第4引数が学習率
-	Layer layer(d, k, m, 0.1);
+	Layer layer(d, k, m, 0.05);
 
 	if (is_online) {
 		layer.learn_online(input_data, input_label);
@@ -50,12 +51,12 @@ int main() {
 	else {
 		layer.learn_patch(input_data, input_label);
 	}
-
+	
 	vector<vector<double>> output(input_label.size(), vector<double>(input_label[0].size()));
 	printf("学習データの出力結果\n");
 	for (int i = 0; i < input_data.size(); i++) {
 		output[i] = layer.forward(input_data[i]);
-		for (int j = 0; j < input_data[0].size(); j++) {
+		for (int j = 0; j < input_label[0].size(); j++) {
 			printf("%lf ,", output[i][j]);
 		}
 		printf("\n");
@@ -65,7 +66,7 @@ int main() {
 	printf("テストデータの出力結果\n");
 	for (int i = 0; i < test_input_data.size(); i++) {
 		test_output[i] = layer.forward(test_input_data[i]);
-		for (int j = 0; j < test_input_data[0].size(); j++) {
+		for (int j = 0; j < test_input_label[0].size(); j++) {
 			printf("%lf ,", test_output[i][j]);
 		}
 		printf("\n");

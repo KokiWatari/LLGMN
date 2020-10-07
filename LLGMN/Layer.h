@@ -16,11 +16,11 @@ private:
     //H:”ñüŒ`•ÏŠ·Œã‚ÌŸŒ³
     int H;
     // input layer
+    vector<double> x;
     vector<double> input1;
     vector<vector<double>> input2;
     vector<double> input3;
     // output layer
-    vector<double> x;
     vector<double> output1;
     vector<vector<double>> output2;
     vector<double> y;
@@ -36,12 +36,23 @@ public:
     Layer(int D,int K,int M,double eta);
     virtual ~Layer() {};
 
+
     vector<double> forward(vector<double> input_data) {
         //”ñüŒ`•ÏŠ·
-
-
-
-
+        vector<double> z1(1,1);
+        x = z1;
+        for (int i = 0; i < input_data.size(); i++) {
+            x.push_back(input_data[i]);
+        }
+        int a = 0;
+        for (int i = 0; i < input_data.size(); i++) {
+            for (int j = 0; j < input_data.size(); j++) {
+                if (i <= j) {
+                    x.push_back(input_data[i] * input_data[j]);
+                }
+            }
+        }
+        H = x.size();
         //‘æ‚P‘w
         for (int h = 0; h < H; h++) {
             input1[h] = x[h];
@@ -49,6 +60,8 @@ public:
         }
         //‘æ‚Q‘w
         double sum = 0;
+        vector<vector<double>> z2(K, vector<double>(M, 0));
+        input2 = z2;
         for (int k = 0; k < K; k++) {
             for (int m = 0; m < M; m++) {
                 if ((k == K) && (m == M)) {
@@ -71,6 +84,8 @@ public:
             }
         }
         //‘æ‚R‘w
+        vector<double> z3(K, 0);
+        input3 = z3;
         for (int k = 0; k < K; k++) {
             for (int m = 0; m < M; m++) {
                 input3[k] += output2[k][m];
@@ -83,9 +98,9 @@ public:
 
     void learn_online(vector<vector<double>>& input_data, vector<vector<double>>& input_label) {
         srand((unsigned int)time(NULL));
-        double evaluation = -100;
-        for (int times = 0; times < 10001 && evaluation / input_data.size() < -0.01; ++times) {
-            evaluation = 0;
+        double error = 100;
+        for (int times = 0; times < 10001 && error / input_data.size() > 0.01; ++times) {
+            error = 0;
             for (int d = 0; d < input_data.size(); d++) {
                 int a = rand() % input_data.size();
                 vector<double> Y = forward(input_data[a]);
@@ -103,21 +118,21 @@ public:
                 for (int k = 0; k < K; k++) {
                     j += input_label[a][k] * log(Y[k]);
                 }
-                evaluation -= j;
+                error -= j;
             }
             if (times % 10 == 0) {
-                cout << "times:" << times << "evaluation, :" << evaluation / input_data.size() << endl;
+                cout << "times:" << times << "  error:" << error / input_data.size() << endl;
             }
         }
     }
 
 
     void learn_patch(vector<vector<double>>& input_data, vector<vector<double>>& input_label) {
-        double evaluation = -100;
+        double error = 100;
         double dj_dw_sum1 = 100;
         double dj_dw_sum2 = 100;
-        for (int times = 0; times < 10001 && evaluation / input_data.size() < -0.01; ++times) {
-            evaluation = 0;
+        for (int times = 0; times < 10001 && error / input_data.size() > 0.01; ++times) {
+            error = 0;
             dj_dw_sum2 = 0;
             for (int d = 0; d < input_data.size(); d++) {
                 vector<double> Y = forward(input_data[d]);
@@ -136,7 +151,7 @@ public:
                 for (int k = 0; k < K; k++) {
                     j += input_label[d][k] * log(Y[k]);
                 }
-                evaluation -= j;
+                error -= j;
             }
             //d‚İ‚ÌXV(ˆêŠ‡)
             for (int k = 0; k < K; k++) {
@@ -145,9 +160,9 @@ public:
                         weight[h][k][m] -= eta * dj_dw_sum2 / input_data.size();
                     }
                 }
-            }
+            } 
             if (times % 10 == 0) {
-                cout << "times:" << times << "evaluation, :" << evaluation / input_data.size() << endl;
+                cout << "times:" << times << "  error:" << error / input_data.size() << endl;
             }
         }    
     }
@@ -158,7 +173,7 @@ public:
         for (int k = 0; k < K; k++) {
             for (int m = 0; m < M; m++) {
                 for (int h = 0; h < H; h++) {
-                    weight[h][k][m] = rand() % 2;
+                    weight[h][k][m] = (double)rand() / RAND_MAX;
                 }
             }
         }
