@@ -1,3 +1,2 @@
 ﻿  Source.cpp
-C:\Users\kouki\OneDrive - 横浜国立大学\GitHub\LLGMN\LLGMN\Layer.h(55,1): warning C4267: '=': 'size_t' から 'int' に変換しました。データが失われているかもしれません。
-  LLGMN.vcxproj -> C:\Users\kouki\OneDrive - 横浜国立大学\GitHub\LLGMN\x64\Debug\LLGMN.exe
+  LLGMN.vcxproj -> C:\Users\ShimaLab\OneDrive - 横浜国立大学\GitHub\LLGMN\x64\Debug\LLGMN.exe

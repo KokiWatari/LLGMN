@@ -4,7 +4,6 @@
 #include<sstream>
 #include<vector>
 #include"Layer.h"
-#define huge 100
 using namespace std;
 vector<vector<double>> get_vector_from_file(string filename);
 
@@ -13,23 +12,24 @@ Layer::Layer(int D, int K, int M, double eta)
 	,K(K)
 	,M(M)
 	,eta(eta)
+	,H(1+D*(D+3)/2)
 {
-	x = vector<double>(1,1);
-	input1 = vector<double>(huge);
+	x = vector<double>(H);
+	input1 = vector<double>(H);
 	input2 = vector<vector<double>>(K, vector<double>(M, 0));
 	input3 = vector<double>(K);
-	output1 = vector<double>(huge);
+	output1 = vector<double>(H);
 	output2 = vector<vector<double>>(K, vector<double>(M, 0));
 	y = vector<double>(K);
-	weight = vector<vector<vector<double>>>(huge, vector<vector<double>>(K, vector<double>(M, 0)));
-	dj_dw = vector<vector<vector<double>>>(huge, vector<vector<double>>(K, vector<double>(M, 0)));
+	weight = vector<vector<vector<double>>>(H, vector<vector<double>>(K, vector<double>(M, 0)));
+	dj_dw = vector<vector<vector<double>>>(H, vector<vector<double>>(K, vector<double>(M, 0)));
 	init_weight();
 }
 
 
 int main() {
 	int d, k, m,is_online;
-	cout << "入力次元(今回は800):";
+	cout << "入力次元(今回は2):";
 	cin >> d;
 	cout << "クラス数(今回は4):";
 	cin >> k;
@@ -43,7 +43,7 @@ int main() {
 	vector<vector<double>> test_input_data = get_vector_from_file("dis_sig.csv");
 	vector<vector<double>> test_input_label = get_vector_from_file("dis_T_sig.csv");
 	//Layerクラス　第4引数が学習率
-	Layer layer(d, k, m, 0.05);
+	Layer layer(d, k, m, 0.1);
 
 	if (is_online) {
 		layer.learn_online(input_data, input_label);
@@ -72,6 +72,18 @@ int main() {
 		printf("\n");
 	}
 
+	//学習データの出力結果をcsvファイルで出力
+	using namespace std;
+	ofstream log;
+	log.open("output.csv", ios::trunc);
+	for (int i = 0; i < input_data.size(); i++) {
+		for (int j = 0; j < input_label[0].size(); j++) {
+			log << output[i][j];
+			log << ",";
+		}
+		log << endl;
+	}
+	log.close();
 
 	return 0;
 }

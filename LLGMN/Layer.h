@@ -11,10 +11,8 @@
 using namespace std;
 class Layer {
 private:
-    //D:入力次元、M:コンポーネント数、K:クラス数
-    const int D, M, K;
-    //H:非線形変換後の次元
-    int H;
+    //D:入力次元、M:コンポーネント数、K:クラス数、H:非線形変換後の次元
+    const int D, M, K, H;
     // input layer
     vector<double> x;
     vector<double> input1;
@@ -39,20 +37,19 @@ public:
 
     vector<double> forward(vector<double> input_data) {
         //非線形変換
-        vector<double> z1(1,1);
-        x = z1;
-        for (int i = 0; i < input_data.size(); i++) {
-            x.push_back(input_data[i]);
+        x[0] = 1;
+        for (int i = 0; i < D; i++) {
+            x[i+1] = input_data[i];
         }
-        int a = 0;
-        for (int i = 0; i < input_data.size(); i++) {
-            for (int j = 0; j < input_data.size(); j++) {
+        int a = 1;
+        for (int i = 0; i < D; i++) {
+            for (int j = 0; j < D; j++) {
                 if (i <= j) {
-                    x.push_back(input_data[i] * input_data[j]);
+                    x[D + a] = input_data[i] * input_data[j];
+                    a += 1;
                 }
             }
         }
-        H = x.size();
         //第１層
         for (int h = 0; h < H; h++) {
             input1[h] = x[h];
@@ -101,7 +98,7 @@ public:
         double error = 100;
         for (int times = 0; times < 10001 && error / input_data.size() > 0.01; ++times) {
             error = 0;
-            for (int d = 0; d < input_data.size(); d++) {
+            for (int n = 0; n < input_data.size(); n++) {
                 int a = rand() % input_data.size();
                 vector<double> Y = forward(input_data[a]);
                 for (int k = 0; k < K; k++) {
@@ -129,27 +126,23 @@ public:
 
     void learn_patch(vector<vector<double>>& input_data, vector<vector<double>>& input_label) {
         double error = 100;
-        double dj_dw_sum1 = 100;
-        double dj_dw_sum2 = 100;
         for (int times = 0; times < 10001 && error / input_data.size() > 0.01; ++times) {
             error = 0;
-            dj_dw_sum2 = 0;
-            for (int d = 0; d < input_data.size(); d++) {
-                vector<double> Y = forward(input_data[d]);
-                dj_dw_sum1 = 0;
+            vector<vector<vector<double>>> dj_dw_sum(H, vector<vector<double>>(K, vector<double>(M, 0)));
+            for (int n = 0; n < input_data.size(); n++) {
+                vector<double> Y = forward(input_data[n]);
                 for (int k = 0; k < K; k++) {
                     for (int m = 0; m < M; m++) {
                         for (int h = 0; h < H; h++) {
-                            dj_dw[h][k][m] = (Y[k] - input_label[d][k]) * (output2[k][m] / Y[k]) * x[h];
-                            dj_dw_sum1 += dj_dw[h][k][m];
+                            dj_dw[h][k][m] = (Y[k] - input_label[n][k]) * (output2[k][m] / Y[k]) * x[h];
+                            dj_dw_sum[h][k][m] += dj_dw[h][k][m];
                         }
                     }
                 }
-                dj_dw_sum2 += dj_dw_sum1 / (H * K * M);
                 //評価関数(交差エントロピー誤差)の計算
                 double j = 0;
                 for (int k = 0; k < K; k++) {
-                    j += input_label[d][k] * log(Y[k]);
+                    j += input_label[n][k] * log(Y[k]);
                 }
                 error -= j;
             }
@@ -157,7 +150,7 @@ public:
             for (int k = 0; k < K; k++) {
                 for (int m = 0; m < M; m++) {
                     for (int h = 0; h < H; h++) {
-                        weight[h][k][m] -= eta * dj_dw_sum2 / input_data.size();
+                        weight[h][k][m] -= eta * dj_dw_sum[h][k][m] / input_data.size();
                     }
                 }
             } 
